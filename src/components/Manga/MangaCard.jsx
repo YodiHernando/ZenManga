@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Bookmark } from 'lucide-react';
-import { Tilt } from 'react-tilt';
+import { Star, Bookmark, Check } from 'lucide-react';
+import { motion } from 'framer-motion';
+import OptimizedImage from '../UI/OptimizedImage';
+import { useToast } from '../UI/Toast';
+import { useVault } from '../../hooks/useVault';
 
 const MangaCard = ({ manga }) => {
+    const { toggleVault, isInVault } = useVault();
+    const inVault = isInVault(manga.mal_id);
+
+    const handleVaultToggle = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleVault({
+            mal_id: manga.mal_id,
+            title: manga.title,
+            images: manga.images,
+            chapters: manga.chapters,
+        });
+    };
+
     // Determine status color
     const getStatusColor = (status) => {
         if (!status) return 'bg-slate-500/50 text-slate-200';
@@ -12,33 +29,36 @@ const MangaCard = ({ manga }) => {
         return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
     };
 
-    const defaultOptions = {
-        reverse: false,
-        max: 10,
-        perspective: 1000,
-        scale: 1.02,
-        speed: 1000,
-        transition: true,
-        axis: null,
-        reset: true,
-        easing: "cubic-bezier(.03,.98,.52,.99)",
+    // Animation variants for staggered entrance
+    const cardVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { 
+            opacity: 1, 
+            y: 0,
+            transition: { duration: 0.5, ease: "easeOut" }
+        }
     };
 
     return (
-        <Tilt options={defaultOptions} className="relative group rounded-xl overflow-hidden bg-[#1a1c29] border border-white/5 shadow-lg h-full">
+        <motion.div
+            variants={cardVariants}
+            className="relative group rounded-xl overflow-hidden bg-[#1a1c29] border border-white/5 shadow-lg h-full"
+            whileHover={{ scale: 1.03, rotateY: 3, rotateX: -2 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            style={{ transformPerspective: 1000 }}
+        >
             <Link
                 to={`/manga/${manga.mal_id}`}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="block h-full"
             >
                 {/* Image Container - Adjusted to 2:3 Aspect Ratio for better Manga fit */}
                 <div className="relative aspect-[2/3] overflow-hidden">
-                    <img
-                        src={manga.images.jpg.large_image_url || manga.images.jpg.image_url}
+                    <OptimizedImage
+                        src={manga.images?.jpg?.large_image_url || manga.images?.jpg?.image_url}
+                        placeholder={manga.images?.jpg?.small_image_url}
+                        webpSrc={manga.images?.webp?.large_image_url || manga.images?.webp?.image_url}
                         alt={manga.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        loading="lazy"
                     />
 
                     {/* Score Badge */}
@@ -58,6 +78,18 @@ const MangaCard = ({ manga }) => {
                     <h3 className="text-white font-bold truncate text-lg leading-tight group-hover:text-cyan-400 transition-colors">
                         {manga.title}
                     </h3>
+
+                    {/* Genre badges — max 2 */}
+                    {manga.genres?.length > 0 && (
+                        <div className="flex gap-1 mt-1.5 flex-wrap">
+                            {manga.genres.slice(0, 2).map(g => (
+                                <span key={g.mal_id} className="text-[9px] px-1.5 py-0.5 rounded bg-black/50 backdrop-blur-sm text-slate-300 border border-white/10 font-medium">
+                                    {g.name}
+                                </span>
+                            ))}
+                        </div>
+                    )}
+
                     <div className="flex justify-between items-center mt-2">
                         <span className="text-slate-400 text-xs font-medium uppercase tracking-wider">
                             {manga.type || 'Manga'}
@@ -74,17 +106,17 @@ const MangaCard = ({ manga }) => {
 
             {/* Vault Button - Discrete Floating Action */}
             <button
-                className="absolute top-2 right-2 p-2 bg-black/50 hover:bg-cyan-500 text-white rounded-full backdrop-blur-md border border-white/10 transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110 z-20"
-                title="Add to Vault"
-                onClick={(e) => {
-                    e.preventDefault(); // Prevent opening the link
-                    e.stopPropagation();
-                    console.log('Add to vault:', manga.mal_id);
-                }}
+                className={`absolute top-2 right-2 p-2 rounded-full backdrop-blur-md border transition-all duration-300 z-20 hover:scale-110 ${
+                    inVault 
+                    ? 'bg-cyan-500/80 text-white border-cyan-400/50 shadow-[0_0_10px_rgba(6,182,212,0.5)] opacity-100' 
+                    : 'bg-black/50 text-white border-white/10 opacity-0 group-hover:opacity-100 hover:bg-cyan-500/80'
+                }`}
+                title={inVault ? "Remove from Vault" : "Add to Vault"}
+                onClick={handleVaultToggle}
             >
-                <Bookmark className="w-5 h-5" />
+                {inVault ? <Check className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
             </button>
-        </Tilt>
+        </motion.div>
     );
 };
 

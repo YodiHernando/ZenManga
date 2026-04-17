@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, X, Menu, BookOpen } from 'lucide-react';
+import { Search, X, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
@@ -23,31 +23,6 @@ const Navbar = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleTrendingClick = (e) => {
-        e.preventDefault();
-
-        const scrollToTrending = () => {
-            const element = document.getElementById('trending-section');
-            if (element) {
-                const headerOffset = 80; // Height of header + gap
-                const elementPosition = element.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
-            }
-        };
-
-        if (location.pathname !== '/') {
-            navigate('/');
-            setTimeout(scrollToTrending, 500); // Increased timeout to ensure page load
-        } else {
-            scrollToTrending();
-        }
-    };
-
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
@@ -67,8 +42,8 @@ const Navbar = () => {
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
                 }}>
-                    <div className="bg-cyan-500 p-1.5 rounded-lg group-hover:bg-cyan-400 transition-colors shadow-[0_0_15px_rgba(6,182,212,0.5)]">
-                        <BookOpen className="w-5 h-5 text-slate-900" />
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg overflow-hidden shrink-0 transition-all border border-white/10">
+                        <img src="/ZenManga.jpg" alt="ZenManga Logo" className="w-full h-full object-cover" />
                     </div>
                     <span className="text-xl font-bold font-sans tracking-tight">
                         <span className="text-white">Zen</span>
@@ -77,16 +52,31 @@ const Navbar = () => {
                 </Link>
 
                 <nav className="flex items-center gap-6 text-sm font-medium text-slate-400">
-                    <div className="hidden md:flex items-center gap-6">
-                        <Link to="/" className="hover:text-white transition-colors" onClick={(e) => {
-                            if (location.pathname === '/') {
-                                e.preventDefault();
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                            }
-                        }}>Home</Link>
-                        <button onClick={handleTrendingClick} className="hover:text-white transition-colors cursor-pointer">Top Rated</button>
-                        <Link to="/browse" className="hover:text-white transition-colors">Browse</Link>
-                        <Link to="/vault" className="hover:text-white transition-colors">My Vault</Link>
+                    <div className="hidden md:flex items-center gap-1">
+                        <Link to="/"
+                            onClick={(e) => {
+                                if (location.pathname === '/') {
+                                    e.preventDefault();
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }
+                            }}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/'
+                                    ? 'text-white bg-white/10'
+                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                }`}
+                        >Home</Link>
+                        <Link to="/browse"
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/browse'
+                                    ? 'text-white bg-white/10'
+                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                }`}
+                        >Browse</Link>
+                        <Link to="/vault"
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/vault'
+                                    ? 'text-white bg-white/10'
+                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                }`}
+                        >My Vault</Link>
                     </div>
 
                     {/* Search Bar Toggle */}
@@ -161,52 +151,33 @@ const Navbar = () => {
                                     setIsMobileMenuOpen(false);
                                     if (location.pathname === '/') {
                                         e.preventDefault();
-                                        setTimeout(() => {
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        }, 300);
+                                        setTimeout(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 300);
                                     }
                                 }}
-                                className="py-2 text-slate-300 hover:text-white font-medium hover:bg-white/5 rounded-lg transition-colors"
+                                className={`py-2 px-4 font-medium rounded-lg transition-colors ${location.pathname === '/'
+                                        ? 'text-white bg-white/10'
+                                        : 'text-slate-300 hover:text-white hover:bg-white/5'
+                                    }`}
                             >
                                 Home
                             </Link>
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setIsMobileMenuOpen(false);
-                                    if (location.pathname !== '/') {
-                                        navigate('/');
-                                        setTimeout(() => {
-                                            const element = document.getElementById('trending-section');
-                                            if (element) element.scrollIntoView({ behavior: 'smooth' });
-                                        }, 500);
-                                    } else {
-                                        setTimeout(() => {
-                                            const element = document.getElementById('trending-section');
-                                            if (element) {
-                                                const headerOffset = 80;
-                                                const elementPosition = element.getBoundingClientRect().top;
-                                                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                                                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                                            }
-                                        }, 300);
-                                    }
-                                }}
-                                className="py-2 text-slate-300 hover:text-white font-medium hover:bg-white/5 rounded-lg transition-colors w-full"
-                            >
-                                Top Rated
-                            </button>
                             <Link
                                 to="/browse"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="py-2 text-slate-300 hover:text-white font-medium hover:bg-white/5 rounded-lg transition-colors"
+                                className={`py-2 px-4 font-medium rounded-lg transition-colors ${location.pathname === '/browse'
+                                        ? 'text-white bg-white/10'
+                                        : 'text-slate-300 hover:text-white hover:bg-white/5'
+                                    }`}
                             >
                                 Browse
                             </Link>
                             <Link
                                 to="/vault"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="py-2 text-slate-300 hover:text-white font-medium hover:bg-white/5 rounded-lg transition-colors"
+                                className={`py-2 px-4 font-medium rounded-lg transition-colors ${location.pathname === '/vault'
+                                        ? 'text-white bg-white/10'
+                                        : 'text-slate-300 hover:text-white hover:bg-white/5'
+                                    }`}
                             >
                                 My Vault
                             </Link>

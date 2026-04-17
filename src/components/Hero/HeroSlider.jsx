@@ -9,9 +9,29 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 
 const HeroSlider = ({ trending }) => {
-    const topMangas = trending?.slice(0, 5) || [];
+    // Filter manga yang punya gambar valid saja
+    const topMangas = trending
+        ?.filter(m => m?.images?.jpg?.large_image_url || m?.images?.webp?.large_image_url)
+        ?.slice(0, 5) || [];
 
-    if (!trending || trending.length === 0) return null;
+    if (!trending || trending.length === 0) return (
+        <section className="relative w-full min-h-[85vh] flex items-center bg-[#0B0C15] overflow-hidden pt-20">
+            <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-12 animate-pulse">
+                {/* Poster Skeleton */}
+                <div className="w-[280px] md:w-[350px] lg:w-[400px] aspect-[3/4.2] bg-slate-800/40 rounded-[2rem] flex-shrink-0" />
+                {/* Content Skeleton */}
+                <div className="flex-1 space-y-6">
+                    <div className="h-8 w-32 bg-slate-800/40 rounded-full" />
+                    <div className="h-16 md:h-24 w-3/4 bg-slate-800/40 rounded-2xl" />
+                    <div className="h-20 w-full bg-slate-800/40 rounded-xl" />
+                    <div className="flex gap-4">
+                        <div className="h-14 w-40 bg-slate-800/40 rounded-2xl" />
+                        <div className="h-14 w-40 bg-slate-800/40 rounded-2xl" />
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
 
     return (
         <section className="relative w-full min-h-[85vh] flex items-start bg-[#0B0C15] overflow-hidden pt-16 md:pt-20">
@@ -55,9 +75,19 @@ const HeroSlider = ({ trending }) => {
                                 <div className="relative w-[280px] md:w-[350px] lg:w-[400px] flex-shrink-0 group perspective-1000">
                                     <div className="relative rounded-[2rem] overflow-hidden shadow-[0_0_50px_-12px_rgba(6,182,212,0.25)] border-2 border-white/5 bg-slate-900 aspect-[3/4.2] transform transition-transform duration-700 hover:rotate-y-6 hover:scale-105">
                                         <img
-                                            src={manga.images.jpg.large_image_url}
+                                            src={manga.images?.jpg?.large_image_url || manga.images?.webp?.large_image_url}
                                             alt={manga.title}
                                             className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                // Fallback ke webp lalu ke image_url biasa
+                                                const webp = manga.images?.webp?.large_image_url;
+                                                const fallback = manga.images?.jpg?.image_url;
+                                                if (e.target.src !== webp && webp) {
+                                                    e.target.src = webp;
+                                                } else if (e.target.src !== fallback && fallback) {
+                                                    e.target.src = fallback;
+                                                }
+                                            }}
                                         />
                                         {/* Shine Effect */}
                                         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
@@ -72,7 +102,7 @@ const HeroSlider = ({ trending }) => {
                                     <div className="space-y-6">
                                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 animate-fade-in-up">
                                             <span className="px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-wider">
-                                                #{index + 1} Top Rated
+                                                #{index + 1} Highest Rated
                                             </span>
                                             <span className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-xs font-bold">
                                                 <FiStar className="fill-yellow-400" /> {manga.score}
@@ -92,7 +122,7 @@ const HeroSlider = ({ trending }) => {
 
                                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
                                             <Link
-                                                to={`/manga/${manga.mal_id}`}
+                                                to={`/manga/${manga.mal_id}?tab=read`}
                                                 className="px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-[#0B0C15] font-bold text-lg rounded-2xl transition-all hover:scale-105 hover:shadow-[0_0_30px_-5px_rgba(6,182,212,0.4)] flex items-center gap-2"
                                             >
                                                 <FiPlay className="fill-current" /> Read Now
@@ -112,7 +142,7 @@ const HeroSlider = ({ trending }) => {
                 </Swiper>
 
                 {/* Custom Navigation Buttons */}
-                <div className="absolute bottom-8 right-8 z-30 flex gap-2">
+                <div className="absolute bottom-12 right-8 z-30 flex gap-2">
                     <button className="swiper-button-prev-custom p-4 rounded-full bg-white/5 hover:bg-cyan-500 hover:text-[#0B0C15] border border-white/10 text-white transition-all">
                         <FiChevronLeft size={24} />
                     </button>
@@ -121,6 +151,9 @@ const HeroSlider = ({ trending }) => {
                     </button>
                 </div>
             </div>
+
+            {/* Bottom gradient fade — transisi mulus ke section bawah */}
+            <div className="absolute bottom-0 left-0 right-0 h-40 z-20 bg-gradient-to-t from-[#0B0C15] via-[#0B0C15]/60 to-transparent pointer-events-none" />
 
             <style>{`
                 .swiper-button-next-custom.swiper-button-disabled,

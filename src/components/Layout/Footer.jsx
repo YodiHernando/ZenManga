@@ -12,8 +12,9 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                     {/* Brand */}
                     <div className="col-span-1 md:col-span-2">
-                        <Link to="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300 mb-4 inline-block">
-                            ZenManga
+                        <Link to="/" className="text-2xl font-bold mb-4 inline-block tracking-tight">
+                            <span className="text-white">Zen</span>
+                            <span className="text-cyan-500">Manga</span>
                         </Link>
                         <p className="text-slate-400 leading-relaxed max-w-sm">
                             Your minimalist, futuristic gateway to the world of manga.
@@ -49,7 +50,7 @@ const Footer = () => {
                 </div>
 
                 <div className="pt-8 border-t border-white/5 text-center text-slate-500 text-sm flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p>&copy; {new Date().getFullYear()} <span className="font-bold tracking-tight"><span className="text-slate-200">Zen</span><span className="text-cyan-500">Manga</span></span>. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} <span className="font-bold tracking-tight"><span className="text-white">Zen</span><span className="text-cyan-500">Manga</span></span>. All rights reserved.</p>
                     <div className="flex items-center gap-2 bg-white/5 px-4 py-1.5 rounded-full border border-white/5">
                         <span>Made by <span className="text-cyan-400 font-bold hover:text-cyan-300 transition-colors cursor-default">Antigravity</span></span>
                         <span className="text-slate-700">|</span>
